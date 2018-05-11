@@ -2,4 +2,4 @@
 
 Soil moisture detector and water pump control
 
-v0.1
+v0.10
