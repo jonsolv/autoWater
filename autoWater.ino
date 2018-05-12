@@ -86,12 +86,10 @@ void buttonPressed() {
       tm.reset();
       memButtons = 0;
     } else {
-      //Serial.println("P");
       brightness--;
       tm.sendCommand(0x88 | brightness);
       delay(500);
       memButtons = 0;
-      //Serial.println(String(brightness) + " : " + String(0x88 | brightness));
     }
   }
 }
@@ -105,5 +103,4 @@ void loop() {
   buttonPressed();
   lightLEDs(memButtons);
   showPlot();
- //Serial.println("mem=" + String(memButtons));
 }
