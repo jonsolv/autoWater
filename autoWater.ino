@@ -1,20 +1,29 @@
 // TM1638lite - Version: Latest
 #include <TM1638lite.h>
-#define SOIL A0; //connected to moisture reader
-#define STROBE 7;
-#define CLOCK 9;
-#define DATA 8;
+#define SOIL A0 //connected to moisture reader
+#define STROBE 7
+#define CLOCK 9
+#define DATA 8
 TM1638lite tm(STROBE, CLOCK, DATA); //(strobe, clock, data)
 
 int readings = 1000; //number of reading to take for average
 uint8_t memButtons = 0; //buttons pressed
-float plotTime = 600000; //milliseconds between plots
+float plotTime = 6000; //milliseconds between plots
 float lastPlot = 0; //when last plot recorded
+int minMoist; //minimum moisture
+int maxMoist; //max moisture
+int averageMoisture; // average Moisture
+int realMoisture; //real Moisture
+byte brightness = 0x7; //brightness and enable = 1111
+
 
 void setup() {
   pinMode(SOIL, INPUT);
   Serial.begin(57600);
   tm.displayText("Starting");
+  delay(1000);
+  minMoist = getAverageMoisture();
+  maxMoist = getAverageMoisture();
 }
 
 int getAverageMoisture() {
@@ -26,40 +35,75 @@ int getAverageMoisture() {
 }
 
 int getRealMoisture() {
-  return(analogRead(SOIL));
+  return(1000-analogRead(SOIL));
 }
 
-void loop() {
-  uint8_t buttons = tm.readButtons();
-  if (buttons > 0) { memButtons = buttons; }
+void lightLEDs(uint8_t button) {
+  for (uint8_t i = 0; i < 8; i++) {
+    tm.setLED(i, button & 1);
+    button = button >> 1;
+  }
+}
+
+void showPlot() {
+  if (millis() > (lastPlot + plotTime)) {
+    lastPlot = millis();
+    Serial.println(String(averageMoisture/10));
+  }
+}
+
+void buttonPressed() {
   if (memButtons == 1) {
-    tm.displayText(String(getAverageMoisture()/10)); //display average 1-10
+    tm.displayText(String(averageMoisture/10)); //1 - display average 1-10
   }
   if (memButtons == 2) {
-    tm.displayText(String(getRealMoisture())); //full reading live data
+    tm.displayText(String(averageMoisture)); //2 - average data full reading
   }
   if (memButtons == 4) {
-    tm.displayText(String(getAverageMoisture())); //average data full reading
+
+    tm.displayText(String(getRealMoisture())); //3 - full reading live data
   }
   if (memButtons == 8) {
-    //4th button
+    //4 - Min level
+    tm.displayText("Lo " + String(minMoist));
   }
   if (memButtons == 16) {
-    //5th button
+    //5 - Max level
+    tm.displayText("Hi " + String(maxMoist));
   }
   if (memButtons == 32) {
     //6th button
-  }  
+  }
   if (memButtons == 64) {
   //7th
-  }  
-  if (memButtons == 128) {
-  //8th
   }
-if (millis() > (lastPlot + plotTime)) {
-  lastPlot = millis();
-  Serial.println(String(getAverageMoisture()/10));
+  if (memButtons == 128) {
+  //8th - brightness/blank display
+    if (brightness == 0) {
+      tm.displayText("off...");
+      delay(2000);
+      brightness = 0x7;
+      tm.reset();
+      memButtons = 0;
+    } else {
+      //Serial.println("P");
+      brightness--;
+      tm.sendCommand(0x88 | brightness);
+      delay(500);
+      memButtons = 0;
+      //Serial.println(String(brightness) + " : " + String(0x88 | brightness));
+    }
+  }
 }
-  //Serial.println(String(readings));
 
+void loop() {
+  averageMoisture = getAverageMoisture();
+  if (minMoist > averageMoisture) { minMoist = averageMoisture; }
+  if (maxMoist < averageMoisture) { maxMoist = averageMoisture; }
+  uint8_t buttons = tm.readButtons();
+  if (buttons > 0) { memButtons = buttons; }
+  buttonPressed();
+  lightLEDs(memButtons);
+  showPlot();
+ //Serial.println("mem=" + String(memButtons));
 }
