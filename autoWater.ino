@@ -13,9 +13,7 @@ float lastPlot = 0; //when last plot recorded
 int minMoist; //minimum moisture
 int maxMoist; //max moisture
 int averageMoisture; // average Moisture
-int realMoisture; //real Moisture
 byte brightness = 0x7; //brightness and enable = 1111
-
 
 void setup() {
   pinMode(SOIL, INPUT);
