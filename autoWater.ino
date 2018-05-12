@@ -5,15 +5,18 @@
 #define CLOCK 9
 #define DATA 8
 TM1638lite tm(STROBE, CLOCK, DATA); //(strobe, clock, data)
-
+//User tweaks:
 int readings = 1000; //number of reading to take for average
-uint8_t memButtons = 0; //buttons pressed
 float plotTime = 600000; //milliseconds between plots
+int minTrigger = 200; //trigger to turn on water
+//end of user tweaks
+bool triggered = 0;
 float lastPlot = 0; //when last plot recorded
 int minMoist; //minimum moisture
 int maxMoist; //max moisture
 int averageMoisture; // average Moisture
 byte brightness = 0x7; //brightness and enable = 1111
+uint8_t memButtons = 0; //buttons pressed
 
 void setup() {
   pinMode(SOIL, INPUT);
@@ -37,9 +40,15 @@ int getRealMoisture() {
 }
 
 void lightLEDs(uint8_t button) {
-  for (uint8_t i = 0; i < 8; i++) {
-    tm.setLED(i, button & 1);
-    button = button >> 1;
+  if (triggered == 0) {
+    for (uint8_t i = 0; i < 8; i++) {
+      tm.setLED(i, button & 1);
+      button = button >> 1;
+    }
+  } else {
+      for (uint8_t i = 0; i < 8; i++) {
+        tm.setLED(i, 1);
+      }
   }
 }
 
@@ -88,6 +97,13 @@ void buttonPressed() {
   }
 }
 
+void checkTriggers() {
+  if (averageMoisture < minTrigger) {
+    tm.displayASCII(7, 't');
+    triggered = 1;
+  }
+}
+
 void loop() {
   averageMoisture = getAverageMoisture();
   if (minMoist > averageMoisture) { minMoist = averageMoisture; }
@@ -97,4 +113,5 @@ void loop() {
   buttonPressed();
   lightLEDs(memButtons);
   showPlot();
+  checkTriggers();
 }
