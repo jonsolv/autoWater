@@ -1,32 +1,30 @@
 // TM1638lite - Version: Latest
 #include <TM1638lite.h>
-
 TM1638lite tm(7, 9, 8); //(strobe, clock, data)
 
-#define SOIL A0
+#define SOIL A0; //connected to moisture reader
+int moist; //read moisture value
 
 void setup() {
   pinMode(SOIL, INPUT);
   Serial.begin(57600);
-  tm.displayText("88888888");
+  tm.displayText("Starting");
   delay(500);
-for (int i = 0; i < 20; i++){
-  tm.displayText(String(i));
-  //delay(100);
 }
-int i;
+
+int getAverageMoisture() {
+  int totalread = 0;
+  int readings = 24; //number of reading to take for average
+  for (int i = 0; i < readings; i++) {
+    moist = analogRead(SOIL);
+    totalread = totalread + moist;
+  }
+ return(totalread / (readings * 100));
 }
 
 void loop() {
-  int rr = 0;
-  int r, i;
-  for (r = 0; r < 24; r++) {
-    i = analogRead(SOIL);
-    rr = rr + i;
-  }
- i = rr / (r * 100);
- //Serial.println(String(i));
- tm.displayText(String(i));
- delay(2000);
+
+  tm.displayText(String(getAverageMoisture())); //display 1-10
+
 
 }
