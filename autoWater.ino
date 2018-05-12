@@ -6,6 +6,8 @@
 #define DATA 8
 TM1638lite tm(STROBE, CLOCK, DATA); //(strobe, clock, data)
 
+//test
+
 //User tweaks:
 int readings = 1000; //number of reading to take for average
 float plotTime = 600000; //milliseconds between plots
