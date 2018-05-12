@@ -5,11 +5,13 @@
 #define CLOCK 9
 #define DATA 8
 TM1638lite tm(STROBE, CLOCK, DATA); //(strobe, clock, data)
+
 //User tweaks:
 int readings = 1000; //number of reading to take for average
 float plotTime = 600000; //milliseconds between plots
 int minTrigger = 200; //trigger to turn on water
 //end of user tweaks
+
 bool triggered = 0;
 float lastPlot = 0; //when last plot recorded
 int minMoist; //minimum moisture
