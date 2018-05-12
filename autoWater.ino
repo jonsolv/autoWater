@@ -8,7 +8,7 @@ TM1638lite tm(STROBE, CLOCK, DATA); //(strobe, clock, data)
 
 int readings = 1000; //number of reading to take for average
 uint8_t memButtons = 0; //buttons pressed
-float plotTime = 6000; //milliseconds between plots
+float plotTime = 600000; //milliseconds between plots
 float lastPlot = 0; //when last plot recorded
 int minMoist; //minimum moisture
 int maxMoist; //max moisture
