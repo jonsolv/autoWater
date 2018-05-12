@@ -60,25 +60,21 @@ void buttonPressed() {
     tm.displayText(String(averageMoisture)); //2 - average data full reading
   }
   if (memButtons == 4) {
-
     tm.displayText(String(getRealMoisture())); //3 - full reading live data
   }
   if (memButtons == 8) {
-    //4 - Min level
-    tm.displayText("Lo " + String(minMoist));
+    tm.displayText("Lo " + String(minMoist)); //4 - Min level
   }
   if (memButtons == 16) {
-    //5 - Max level
-    tm.displayText("Hi " + String(maxMoist));
+    tm.displayText("Hi " + String(maxMoist)); //5 - Max level
   }
-  if (memButtons == 32) {
-    //6th button
+  if (memButtons == 32) {     //6th button
+
   }
-  if (memButtons == 64) {
-  //7th
+  if (memButtons == 64) {   //7th
+
   }
-  if (memButtons == 128) {
-  //8th - brightness/blank display
+  if (memButtons == 128) {   //8th - brightness/blank display
     if (brightness == 0) {
       tm.displayText("off...");
       delay(2000);
