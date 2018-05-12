@@ -25,6 +25,7 @@ int getAverageMoisture() {
 void loop() {
 
   tm.displayText(String(getAverageMoisture())); //display 1-10
+  delay(2000);
 
 
 }
