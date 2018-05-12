@@ -48,7 +48,7 @@ void lightLEDs(uint8_t button) {
 void showPlot() {
   if (millis() > (lastPlot + plotTime)) {
     lastPlot = millis();
-    Serial.println(String(averageMoisture/10));
+    Serial.println(String(averageMoisture));
   }
 }
 
