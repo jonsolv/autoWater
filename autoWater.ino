@@ -96,7 +96,10 @@ void buttonPressed(uint8_t button) {
 
 void checkTriggers() {
   if (averageMoisture < minTrigger) {
-    if (triggered == 0) { Serial.println("Trigger at " + String(averageMoisture)); }
+    if (triggered == 0) {
+
+      Serial.println("Trigger at " + String(averageMoisture));
+    }
     triggered = 1;
   }
   if (averageMoisture > requiredMoisture) {
@@ -108,6 +111,7 @@ void checkTriggers() {
 void trigger() {
   if (triggered == 1 && (millis() > (pumpedAt + pumpRestTime))) {
     if (averageMoisture < pumpedAtMoisture + errorPumping) {
+      Serial.println(String(averageMoisture) + " < " + String(pumpedAtMoisture) + " + " + String(errorPumping));
       error = 1;
       Serial.println("Error logged");
     } else {
