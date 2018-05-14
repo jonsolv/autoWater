@@ -106,7 +106,7 @@ void buttonPressed(uint8_t button) {
   if (button == 128) {
     error = 0;  //8th - remove error
     triggered = 0;
-
+    Serial.println("Reset pressed");
   }
 }
 
@@ -117,6 +117,7 @@ void checkTriggers() {
   }
   if (averageMoisture > requiredMoisture) {
     triggered = 0;
+    Serial.println("Trigger removed " + String(averageMoisture));
   }
 }
 
@@ -124,10 +125,12 @@ void trigger() {
   if (triggered == 1 && (millis() > (pumpedAt + pumpRestTime))) {
     if (averageMoisture < pumpedAtMoisture + errorPumping) {
       error = 1;
+      Serial.println("Error logged");
     } else {
       pump();
       pumpedAt = millis();
       pumpedAtMoisture = averageMoisture;
+      Serial.println("Pumped at millis" + String(pumpedAt) + " and moisture "+ pumpedAtMoisture);
     }
   }
 }
@@ -145,7 +148,7 @@ void checkButtons() {
 
 void loop() {
   getAverageMoisture();
-  showPlot();
+  //showPlot();
   if (error == 0) {
     checkButtons();
     buttonPressed(memButtons);
