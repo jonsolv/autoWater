@@ -13,9 +13,9 @@ float plotTime = 600000; //milliseconds between plots
 int minTrigger = 200; //trigger to turn on water
 float pumpRestTime = 60000; //min time between waters
 int pumpForSeconds = 4; //number of seconds to pump for
-int requiredMoisture = 600; //moisture level to stop pumping
-int errorPumping = 100; //moisture level min increase per pump
-byte brightness = 0x7; //brightness and enable = 1111
+int requiredMoisture = 400; //moisture level to stop pumping
+int errorPumping = 20; //moisture level min increase per pump
+byte brightness = 0x8f; //brightness and enable = 1111
 //end of user tweaks
 
 bool error = 0; //error pumping
@@ -36,10 +36,12 @@ void setup() {
   pinMode(SOIL, INPUT);
   pinMode(PUMP, OUTPUT);
   Serial.begin(57600);
+  tm.sendCommand(brightness);
   tm.displayText("Starting");
   delay(1000);
   minMoist = getAverageMoisture();
   maxMoist = minMoist;
+
 }
 
 int getAverageMoisture() {
