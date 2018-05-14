@@ -110,12 +110,12 @@ void buttonPressed(uint8_t button) {
 
 void checkTriggers() {
   if (averageMoisture < minTrigger) {
+    if (triggered == 0) { Serial.println("Trigger at " + String(averageMoisture)); }
     triggered = 1;
-    Serial.println("Trigger at " + String(averageMoisture));
   }
   if (averageMoisture > requiredMoisture) {
+    if (triggered == 1) { Serial.println("Trigger removed " + String(averageMoisture)); }
     triggered = 0;
-    Serial.println("Trigger removed " + String(averageMoisture));
   }
 }
 
@@ -128,7 +128,7 @@ void trigger() {
       pump();
       pumpedAt = millis();
       pumpedAtMoisture = averageMoisture;
-      Serial.println("Pumped at millis" + String(pumpedAt) + " and moisture "+ pumpedAtMoisture);
+      Serial.println("Pumped at millis " + String(pumpedAt) + " and moisture "+ pumpedAtMoisture);
     }
   }
 }
@@ -146,10 +146,9 @@ void checkButtons() {
 
 void loop() {
   getAverageMoisture();
-  //showPlot();
+  showPlot();
   checkButtons();
   if (error == 0) {
-
     buttonPressed(memButtons);
     lightLEDs(memButtons);
     checkTriggers();
