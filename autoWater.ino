@@ -160,6 +160,7 @@ void loop() {
     if (memButtons == 128) {
       error = 0;
       triggered = 0;
+      pumpedAtMoisture = 0;
       Serial.println("Reset pressed");
     }
   }
