@@ -9,7 +9,7 @@ TM1638lite tm(STROBE, CLOCK, DATA); //(strobe, clock, data)
 
 //User tweaks:
 int readings = 1000; //number of reading to take for average
-float plotTime = 60000; //milliseconds between plots
+float plotTime = 600000; //milliseconds between plots
 int minTrigger = 200; //trigger to turn on water
 float pumpRestTime = 60000; //min time between waters
 int pumpForSeconds = 4; //number of seconds to pump for
@@ -77,7 +77,7 @@ void lightLEDs(uint8_t button) {
 void showPlot() {
   if (millis() > (lastPlot + plotTime)) {
     lastPlot = millis();
-    Serial.println(String(averageMoisture));
+    Serial.println("Reading = " + String(averageMoisture));
   }
 }
 
