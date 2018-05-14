@@ -104,9 +104,7 @@ void buttonPressed(uint8_t button) {
 
   }
   if (button == 128) {
-    error = 0;  //8th - remove error
-    triggered = 0;
-    Serial.println("Reset pressed");
+
   }
 }
 
@@ -148,14 +146,24 @@ void checkButtons() {
 
 void loop() {
   getAverageMoisture();
+<<<<<<< HEAD
   showPlot();
+=======
+  //showPlot();
+  checkButtons();
+>>>>>>> 41c7fedb7f66bc805ad682dc971d581c26b8b984
   if (error == 0) {
-    checkButtons();
+
     buttonPressed(memButtons);
     lightLEDs(memButtons);
     checkTriggers();
     trigger();
   } else {
     tm.displayText("Er1 " + String(averageMoisture));
+    if (memButtons == 128) {
+      error = 0;
+      triggered = 0;
+      Serial.println("Reset pressed");
+    }
   }
 }
