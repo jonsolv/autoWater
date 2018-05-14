@@ -4,29 +4,42 @@
 #define STROBE 7
 #define CLOCK 9
 #define DATA 8
+#define PUMP 13
 TM1638lite tm(STROBE, CLOCK, DATA); //(strobe, clock, data)
 
 //User tweaks:
 int readings = 1000; //number of reading to take for average
 float plotTime = 600000; //milliseconds between plots
 int minTrigger = 200; //trigger to turn on water
+float pumpRestTime = 600000; //min time between waters
+int pumpForSeconds = 4; //number of seconds to pump for
+int requiredMoisture = 600; //moisture level to stop pumping
+int errorPumping = 100; //moisture level min increase per pump
+byte brightness = 0x7; //brightness and enable = 1111
 //end of user tweaks
 
-bool triggered = 0;
+bool error = 0; //error pumping
+bool triggered = 0; // Is pump triggered?
+int pumpedAtMoisture = 0; //moisture when last pumped
+float pumpedAt = 0; //last watering time
 float lastPlot = 0; //when last plot recorded
 int minMoist; //minimum moisture
 int maxMoist; //max moisture
 int averageMoisture; // average Moisture
-byte brightness = 0x7; //brightness and enable = 1111
 uint8_t memButtons = 0; //buttons pressed
+
+/*Errors:
+Error 1 : Pumped water not raising moisture sufficiently
+*/
 
 void setup() {
   pinMode(SOIL, INPUT);
+  pinMode(PUMP, OUTPUT);
   Serial.begin(57600);
   tm.displayText("Starting");
   delay(1000);
   minMoist = getAverageMoisture();
-  maxMoist = getAverageMoisture();
+  maxMoist = minMoist;
 }
 
 int getAverageMoisture() {
@@ -34,7 +47,10 @@ int getAverageMoisture() {
   for (int i = 0; i < readings; i++) {
     totalread += getRealMoisture();
   }
- return(totalread / (readings));
+  averageMoisture = totalread / readings;
+  if (minMoist > averageMoisture) { minMoist = averageMoisture; }
+  if (maxMoist < averageMoisture) { maxMoist = averageMoisture; }
+  return averageMoisture;
 }
 
 int getRealMoisture() {
@@ -42,15 +58,19 @@ int getRealMoisture() {
 }
 
 void lightLEDs(uint8_t button) {
-  if (triggered == 0) {
-    for (uint8_t i = 0; i < 8; i++) {
-      tm.setLED(i, button & 1);
-      button = button >> 1;
-    }
+  for (uint8_t i = 0; i < 8; i++) {
+    tm.setLED(i, button & 1);
+    button = button >> 1;
+  }
+  if (triggered == 1) {
+    tm.setLED(6, 1);
   } else {
-      for (uint8_t i = 0; i < 8; i++) {
-        tm.setLED(i, 1);
-      }
+    tm.setLED(6, 0);
+  }
+  if (error == 1) {
+    tm.setLED(7, 1);
+  } else {
+    tm.setLED(7, 0);
   }
 }
 
@@ -61,59 +81,77 @@ void showPlot() {
   }
 }
 
-void buttonPressed() {
-  if (memButtons == 1) {
-    tm.displayText(String(averageMoisture/10)); //1 - display average 1-10
+void buttonPressed(uint8_t button) {
+  if (button == 1) {
+    tm.displayText(String(averageMoisture)); //1 - display average 1-10
   }
-  if (memButtons == 2) {
-    tm.displayText(String(averageMoisture)); //2 - average data full reading
+  if (button == 2) {
+    tm.displayText(String(averageMoisture/10)); //2 - average data full reading
   }
-  if (memButtons == 4) {
+  if (button == 4) {
     tm.displayText(String(getRealMoisture())); //3 - full reading live data
   }
-  if (memButtons == 8) {
+  if (button == 8) {
     tm.displayText("Lo " + String(minMoist)); //4 - Min level
   }
-  if (memButtons == 16) {
+  if (button == 16) {
     tm.displayText("Hi " + String(maxMoist)); //5 - Max level
   }
-  if (memButtons == 32) {     //6th button
+  if (button == 32) {     //6th button
 
   }
-  if (memButtons == 64) {   //7th
+  if (button == 64) {   //7th
 
   }
-  if (memButtons == 128) {   //8th - brightness/blank display
-    if (brightness == 0) {
-      tm.displayText("off...");
-      delay(2000);
-      brightness = 0x7;
-      tm.reset();
-      memButtons = 0;
-    } else {
-      brightness--;
-      tm.sendCommand(0x88 | brightness);
-      delay(500);
-      memButtons = 0;
-    }
+  if (button == 128) {
+    error = 0;  //8th - remove error
+    triggered = 0;
+
   }
 }
 
 void checkTriggers() {
   if (averageMoisture < minTrigger) {
-    tm.displayASCII(7, 't');
     triggered = 1;
+  }
+  if (averageMoisture > requiredMoisture) {
+    triggered = 0;
   }
 }
 
-void loop() {
-  averageMoisture = getAverageMoisture();
-  if (minMoist > averageMoisture) { minMoist = averageMoisture; }
-  if (maxMoist < averageMoisture) { maxMoist = averageMoisture; }
+void trigger() {
+  if (triggered == 1 && (millis() > (pumpedAt + pumpRestTime))) {
+    if (averageMoisture < pumpedAtMoisture + errorPumping) {
+      error = 1;
+    } else {
+      pump();
+      pumpedAt = millis();
+      pumpedAtMoisture = averageMoisture;
+    }
+  }
+}
+
+void pump(){
+  digitalWrite(PUMP, 1);
+  delay(pumpForSeconds * 1000);
+  digitalWrite(PUMP, 0);
+}
+
+void checkButtons() {
   uint8_t buttons = tm.readButtons();
   if (buttons > 0) { memButtons = buttons; }
-  buttonPressed();
-  lightLEDs(memButtons);
+}
+
+void loop() {
+  getAverageMoisture();
   showPlot();
-  checkTriggers();
+  if (error == 0) {
+    checkButtons();
+    buttonPressed(memButtons);
+    lightLEDs(memButtons);
+    checkTriggers();
+    trigger();
+  } else {
+    tm.displayText("Er1 " + String(averageMoisture));
+  }
 }
