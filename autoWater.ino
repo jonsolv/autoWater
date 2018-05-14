@@ -84,30 +84,14 @@ void showPlot() {
 }
 
 void buttonPressed(uint8_t button) {
-  if (button == 1) {
-    tm.displayText(String(averageMoisture)); //1 - display average 1-10
-  }
-  if (button == 2) {
-    tm.displayText(String(averageMoisture/10)); //2 - average data full reading
-  }
-  if (button == 4) {
-    tm.displayText(String(getRealMoisture())); //3 - full reading live data
-  }
-  if (button == 8) {
-    tm.displayText("Lo " + String(minMoist)); //4 - Min level
-  }
-  if (button == 16) {
-    tm.displayText("Hi " + String(maxMoist)); //5 - Max level
-  }
-  if (button == 32) {     //6th button
-
-  }
-  if (button == 64) {   //7th
-
-  }
-  if (button == 128) {
-
-  }
+  if (button == 1)  { tm.displayText(String(averageMoisture)); }
+  if (button == 2)  { tm.displayText(String(averageMoisture/10)); }
+  if (button == 4)  { tm.displayText(String(getRealMoisture())); }
+  if (button == 8)  { tm.displayText("Lo " + String(minMoist)); }
+  if (button == 16) { tm.displayText("Hi " + String(maxMoist)); }
+  if (button == 32) {   }  //6th button
+  if (button == 64) {   }  //7th
+  if (button == 128){   } //8th
 }
 
 void checkTriggers() {
