@@ -105,6 +105,7 @@ void checkTriggers() {
   if (averageMoisture > requiredMoisture) {
     if (triggered == 1) { Serial.println("Trigger removed " + String(averageMoisture)); }
     triggered = 0;
+    pumpedAtMoisture = 0;
   }
 }
 
