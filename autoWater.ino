@@ -77,7 +77,7 @@ void lightLEDs(uint8_t button) {
 void showPlot() {
   if (millis() > (lastPlot + plotTime)) {
     lastPlot = millis();
-    Serial.println(String(averageMoisture));
+    Serial.println("Reading = " + String(averageMoisture));
   }
 }
 
@@ -148,7 +148,7 @@ void checkButtons() {
 
 void loop() {
   getAverageMoisture();
-  //showPlot();
+  showPlot();
   if (error == 0) {
     checkButtons();
     buttonPressed(memButtons);
