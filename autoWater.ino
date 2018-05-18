@@ -11,7 +11,7 @@ TM1638lite tm(STROBE, CLOCK, DATA); //(strobe, clock, data)
 int readings = 1000; //number of reading to take for average
 float plotTime = 600000; //milliseconds between plots
 int minTrigger = 100; //trigger to turn on water
-float pumpRestTime = 60000; //min time between waters
+float pumpRestTime = 300000; //min time between waters
 int pumpForSeconds = 4; //number of seconds to pump for
 int requiredMoisture = 200; //moisture level to stop pumping
 int errorPumping = 20; //moisture level min increase per pump
