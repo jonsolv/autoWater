@@ -4,7 +4,7 @@
 #define STROBE 7
 #define CLOCK 9
 #define DATA 8
-#define PUMP 13
+#define PUMP 10
 TM1638lite tm(STROBE, CLOCK, DATA); //(strobe, clock, data)
 
 //User tweaks:
@@ -14,7 +14,7 @@ int minTrigger = 100; //trigger to turn on water
 float pumpRestTime = 300000; //min time between waters
 int pumpForSeconds = 4; //number of seconds to pump for
 int requiredMoisture = 200; //moisture level to stop pumping
-int errorPumping = 20; //moisture level min increase per pump
+int errorPumping = 5; //moisture level min increase per pump
 byte brightness = 0x8f; //brightness and enable = 1111
 //end of user tweaks
 
@@ -116,7 +116,7 @@ void trigger() {
       error = 1;
       Serial.println("Error logged");
     } else {
-      pump();
+      pump(pumpForSeconds);
       pumpedAt = millis();
       pumpedAtMoisture = averageMoisture;
       Serial.println("Pumped at millis " + String(pumpedAt) + " and moisture "+ pumpedAtMoisture);
@@ -124,15 +124,16 @@ void trigger() {
   }
 }
 
-void pump(){
-  digitalWrite(PUMP, 1);
-  delay(pumpForSeconds * 1000);
-  digitalWrite(PUMP, 0);
+void pump(int pumpMe){
+  analogWrite(PUMP, 150);
+  delay(pumpMe * 1000);
+  analogWrite(PUMP, 0);
 }
 
 void checkButtons() {
   uint8_t buttons = tm.readButtons();
   if (buttons > 0) { memButtons = buttons; }
+  if (buttons == 64) { pump(1); }
 }
 
 void loop() {
