@@ -125,7 +125,7 @@ void trigger() {
 }
 
 void pump(int pumpMe){
-  analogWrite(PUMP, 150);
+  analogWrite(PUMP, 200);
   delay(pumpMe * 1000);
   analogWrite(PUMP, 0);
 }
