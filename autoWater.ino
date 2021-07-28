@@ -89,7 +89,7 @@ void buttonPressed(uint8_t button) {
   if (button == 4)  { tm.displayText(String(getRealMoisture())); }
   if (button == 8)  { tm.displayText("Lo " + String(minMoist)); }
   if (button == 16) { tm.displayText("Hi " + String(maxMoist)); }
-  if (button == 32) {   }  //6th button
+  if (button == 32) { pump(1); }  //6th button
   if (button == 64) {   }  //7th
   if (button == 128){   } //8th
 }
@@ -126,6 +126,7 @@ void trigger() {
 
 void pump(int pumpMe){
   analogWrite(PUMP, 200);
+  tm.displayText("Pumping");
   delay(pumpMe * 1000);
   analogWrite(PUMP, 0);
 }
